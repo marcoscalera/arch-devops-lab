@@ -1,0 +1,25 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /src
+
+COPY ["MyBank.Api/MyBank.Api.csproj", "MyBank.Api/"]
+COPY ["MyBank.Application/MyBank.Application.csproj", "MyBank.Application/"]
+COPY ["MyBank.Domain/MyBank.Domain.csproj", "MyBank.Domain/"]
+COPY ["MyBank.Infrastructure/MyBank.Infrastructure.csproj", "MyBank.Infrastructure/"]
+COPY ["MyBank.UnitTests/MyBank.UnitTests.csproj", "MyBank.UnitTests/"]
+COPY ["MyBank.IntegrationTests/MyBank.IntegrationTests.csproj", "MyBank.IntegrationTests/"]
+
+RUN dotnet restore "MyBank.Api/MyBank.Api.csproj"
+
+COPY . .
+
+RUN dotnet test "MyBank.UnitTests/MyBank.UnitTests.csproj" --no-restore
+
+RUN dotnet publish "MyBank.Api/MyBank.Api.csproj" -c Release -o /app/publish
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+WORKDIR /app
+EXPOSE 8080
+
+COPY --from=build /app/publish .
+
+ENTRYPOINT ["dotnet", "MyBank.Api.dll"]
