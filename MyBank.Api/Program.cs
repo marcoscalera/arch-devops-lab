@@ -1,22 +1,13 @@
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using MyBank.Application;
 using MyBank.Domain;
 using MyBank.Infrastructure;
-using Microsoft.OpenApi.Models; 
-using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo 
-    { 
-        Title = "MyBank API", 
-        Version = "v1",
-        Description = "API de transações bancárias do MyBank"
-    });
-});
+builder.Services.AddControllers();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseInMemoryDatabase("BancoMyBank"));
@@ -24,52 +15,47 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IContaRepository, ContaRepositoryEF>();
 builder.Services.AddScoped<SaqueUseCase>();
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo 
+    { 
+        Title = "MyBank Enterprise API", 
+        Version = "v1",
+        Description = "API migrada para arquitetura de Controllers."
+    });
+
+    // pega o texto escrito no Controller e joga no Swagger
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+});
+
 var app = builder.Build();
 
-// carga inicial dos dados (seed)
+// seed do banco - dados inicias
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated(); 
-    
+    db.Database.EnsureCreated();
     if (!db.Contas.Any())
     {
-        db.Contas.Add(new MyBank.Domain.Conta(1, 1000m, true)); 
+        db.Contas.Add(new Conta(1, 1000m, true));
         db.SaveChanges();
     }
 }
 
-// configuração do middleware (pipeline)
+// pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.MapGet("/health", () => Results.Ok("Healthy"))
-   .WithOpenApi();
+app.UseAuthorization();
 
-app.MapPost("/saque", ([FromBody] SaqueRequest req, [FromServices] SaqueUseCase useCase) => 
-{
-    try 
-    {
-        var response = useCase.Executar(req);
-        return Results.Ok(response);
-    }
-    catch (ArgumentException ex) { return Results.BadRequest(ex.Message); }
-    catch (InvalidOperationException ex) { return Results.BadRequest(ex.Message); }
-    catch (Exception ex) { return Results.Problem(ex.Message); }
-})
-.WithName("RealizarSaque")
-.WithOpenApi(x => new(x) // documenta quem usa
-{
-    Summary = "Realiza saque na conta",
-    Description = "Esta rota é consumida pelo **App Mobile** e pelo **Front Angular**."
-});
+app.MapControllers(); 
+app.MapGet("/health", () => Results.Ok("Healthy")); 
 
 app.Run();
 
-namespace MyBank.Api
-{
-    public partial class Program { }
-}
+namespace MyBank.Api { public partial class Program { } }
