@@ -1,23 +1,25 @@
-﻿using MyBank.Domain;
+﻿using Microsoft.EntityFrameworkCore;
+using MyBank.Domain;
 
 namespace MyBank.Infrastructure;
 
-public class ContaRepositoryMemoria : IContaRepository
+public class ContaRepositoryEF : IContaRepository
 {
-    private readonly List<Conta> _db = new()
+    private readonly AppDbContext _context;
+
+    public ContaRepositoryEF(AppDbContext context)
     {
-        new Conta(1, 1000m, isVip: true), 
-        new Conta(2, 500m, isVip: false) 
-    };
+        _context = context;
+    }
 
     public Conta? GetById(int id)
     {
-        return _db.FirstOrDefault(c => c.Id == id);
+        return _context.Contas.FirstOrDefault(c => c.Id == id);
     }
 
     public void Update(Conta conta)
     {
-        var index = _db.FindIndex(c => c.Id == conta.Id);
-        if (index != -1) _db[index] = conta;
+        _context.Contas.Update(conta);
+        _context.SaveChanges();
     }
 }

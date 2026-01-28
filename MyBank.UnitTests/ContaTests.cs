@@ -6,32 +6,30 @@ namespace MyBank.UnitTests;
 public class ContaTests
 {
     [Fact]
-    public void Conta_VIP_Nao_Deve_Cobrar_Taxa()
+    public void Saque_Conta_VIP_Nao_Deve_Cobrar_Taxa()
     {
-        // arrange
-        var conta = new Conta(1, 100m, isVip: true);
-        
-        // act
-        conta.Debitar(50m);
-        
-        // assert
-        Assert.Equal(50m, conta.Saldo);
+        var conta = new Conta(1, 1000m, true);
+
+        conta.Sacar(100m); 
+
+        Assert.Equal(900m, conta.Saldo);
     }
 
     [Fact]
-    public void Conta_Comum_Deve_Cobrar_Taxa_De_5_Reais()
+    public void Saque_Conta_Comum_Deve_Cobrar_Taxa()
     {
-        var conta = new Conta(1, 100m, isVip: false);
-        conta.Debitar(50m);
-        // 100 - 50 - 5 = 45
-        Assert.Equal(45m, conta.Saldo);
+        var conta = new Conta(2, 1000m, false);
+
+        conta.Sacar(100m); 
+
+        Assert.Equal(895m, conta.Saldo);
     }
 
     [Fact]
-    public void Deve_Lancar_Erro_Se_Saldo_Insuficiente()
+    public void Saque_Sem_Saldo_Deve_Lancar_Erro()
     {
-        var conta = new Conta(1, 10m, isVip: false);
-        // não pode
-        Assert.Throws<InvalidOperationException>(() => conta.Debitar(10m));
+        var conta = new Conta(3, 10m, false);
+
+        Assert.Throws<InvalidOperationException>(() => conta.Sacar(50m));
     }
 }

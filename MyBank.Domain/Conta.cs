@@ -6,23 +6,22 @@ public class Conta
     public decimal Saldo { get; private set; }
     public bool IsVip { get; private set; }
 
-    public Conta(int id, decimal saldoInicial, bool isVip)
+    public Conta(int id, decimal saldo, bool isVip)
     {
         Id = id;
-        Saldo = saldoInicial;
+        Saldo = saldo;
         IsVip = isVip;
     }
 
-    public void Debitar(decimal valor)
+    public void Sacar(decimal valor)
     {
-        if (valor <= 0) throw new ArgumentException("Valor deve ser maior que zero");
-        
-        decimal taxa = IsVip ? 0 : 5.00m;
-        decimal total = valor + taxa;
-
-        if (total > Saldo)
-            throw new InvalidOperationException("Saldo Insuficiente");
-
-        Saldo -= total;
+        if (!IsVip) valor += 5; // Taxa
+        if (Saldo < valor) throw new InvalidOperationException("Saldo insuficiente");
+        Saldo -= valor;
+    }
+    
+    public void DefinirSaldo(decimal novoSaldo)
+    {
+        Saldo = novoSaldo;
     }
 }
