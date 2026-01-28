@@ -15,7 +15,7 @@ public class Conta
 
     public void Sacar(decimal valor)
     {
-        if (!IsVip) valor += 5; // Taxa
+        if (!IsVip) valor += 5; 
         if (Saldo < valor) throw new InvalidOperationException("Saldo insuficiente");
         Saldo -= valor;
     }

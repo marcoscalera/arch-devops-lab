@@ -11,19 +11,31 @@ public class SaqueUseCase
         _repository = repository;
     }
 
-    public SaqueResponse Executar(SaqueRequest req)
+    public SaqueResponse Executar(SaqueRequest request)
     {
-        var conta = _repository.GetById(req.ContaId);
-        
-        if (conta == null) throw new ArgumentException("Conta não encontrada");
+        if (request.Valor <= 0)
+        {
+            throw new ArgumentException("O valor do saque deve ser maior que zero.", nameof(request.Valor));
+        }
 
-        conta.Sacar(req.Valor);
+        var conta = _repository.GetById(request.ContaId);
+        
+        if (conta == null)
+        {
+            throw new InvalidOperationException($"Conta {request.ContaId} não encontrada.");
+        }
+
+        conta.Sacar(request.Valor);
 
         _repository.Update(conta);
 
-        return new SaqueResponse(conta.Saldo, "Saque realizado com sucesso");
+        return new SaqueResponse(
+            conta.Saldo,
+            "Saque realizado com sucesso"
+        );
     }
 }
 
 public record SaqueRequest(int ContaId, decimal Valor);
+
 public record SaqueResponse(decimal NovoSaldo, string Mensagem);
