@@ -21,4 +21,10 @@ public class ContaRepositoryEF : IContaRepository
         _context.Contas.Update(conta);
         _context.SaveChanges();
     }
+
+    public void Add(Conta conta)
+    {
+        _context.Contas.Add(conta);
+        _context.SaveChanges();
+    }
 }

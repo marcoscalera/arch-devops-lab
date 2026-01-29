@@ -33,7 +33,7 @@ namespace MyBank.ContractTests
                 .UponReceiving("Uma requisicao de saque valido")
                     .Given("Existe saldo suficiente na conta")
                     .WithRequest(HttpMethod.Post, "/saque")
-                    .WithJsonBody(new { valor = 100.00 }) 
+                    .WithJsonBody(new { contaId = 1, valor = 100.00 }) 
                 .WillRespond()
                     .WithStatus(HttpStatusCode.OK)
                     .WithJsonBody(new { mensagem = "Saque realizado com sucesso" });
@@ -43,7 +43,7 @@ namespace MyBank.ContractTests
                 var client = new HttpClient { BaseAddress = ctx.MockServerUri };
 
                 // simula frontend
-                var response = await client.PostAsJsonAsync("/saque", new { valor = 100.00 });
+                var response = await client.PostAsJsonAsync("/saque", new { contaId = 1, valor = 100.00 });
 
                 // valida se o status code bateu
                 Assert.Equal(HttpStatusCode.OK, response.StatusCode);

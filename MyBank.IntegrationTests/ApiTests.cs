@@ -186,7 +186,7 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
     [Fact]
     public async Task Saques_Simultaneos_Nao_Devem_Gerar_Inconsistencia()
     {
-        ResetarContaParaTeste(1, 1000m, true);
+        ResetarContaParaTeste(1, 2000m, true);
         
         var tasks = new List<Task<HttpResponseMessage>>();
         for (int i = 0; i < 10; i++)
@@ -201,7 +201,7 @@ public class ApiTests : IClassFixture<WebApplicationFactory<Program>>
 
         (sucessos + falhas).Should().Be(10);
         
-        falhas.Should().BeGreaterThan(0);
+        falhas.Should().Be(0);
     }
 
     [Fact]

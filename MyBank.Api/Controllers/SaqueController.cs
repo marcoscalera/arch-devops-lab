@@ -25,7 +25,7 @@ public class SaqueController : ControllerBase
     /// Realiza um saque na conta corrente.
     /// </summary>
     /// <remarks>
-    /// 🚨 **DOCUMENTAÇÃO DE IMPACTO (LEIA ANTES DE ALTERAR):**
+    /// **DOCUMENTAÇÃO DE IMPACTO (LEIA ANTES DE ALTERAR):**
     /// 
     /// Esta rota é crítica e consumida por:
     /// 1. **App Mobile (Android/iOS):** Tela de "Saque Rápido".
