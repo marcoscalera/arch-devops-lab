@@ -2,7 +2,6 @@ using FluentAssertions;
 using Moq;
 using MyBank.Application;
 using MyBank.Domain;
-using Xunit;
 
 namespace MyBank.UnitTests;
 

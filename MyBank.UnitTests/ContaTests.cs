@@ -1,5 +1,4 @@
 ﻿using MyBank.Domain;
-using Xunit;
 
 namespace MyBank.UnitTests;
 
